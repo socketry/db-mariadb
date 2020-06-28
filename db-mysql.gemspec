@@ -14,6 +14,7 @@ Gem::Specification.new do |spec|
 	spec.required_ruby_version = ">= 2.5"
 	
 	spec.add_dependency "ffi"
+	spec.add_dependency "async-io"
 	
 	spec.add_development_dependency "bake"
 	spec.add_development_dependency "covered"

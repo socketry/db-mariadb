@@ -23,6 +23,8 @@
 require 'async/pool/resource'
 require_relative 'native/connection'
 
+require 'async/io/generic'
+
 module DB
 	module MySQL
 		module IO
