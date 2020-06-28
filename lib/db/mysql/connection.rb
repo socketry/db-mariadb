@@ -60,18 +60,6 @@ module DB
 			def next_result
 				@native.next_result
 			end
-			
-			def call(statement)
-				@native.send_query(statement)
-				
-				last_result = nil
-				
-				while result = @native.next_result
-					last_result = result
-				end
-				
-				return last_result
-			end
 		end
 	end
 end

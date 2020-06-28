@@ -36,9 +36,11 @@ RSpec.describe DB::MySQL::Connection do
 	end
 	
 	it "should execute query" do
-		rows = connection.call("SELECT 42 AS LIFE")
+		connection.send_query("SELECT 42 AS LIFE")
 		
-		expect(rows.to_a).to be == [['42']]
+		result = connection.next_result
+		
+		expect(result.to_a).to be == [['42']]
 	ensure
 		connection.close
 	end
