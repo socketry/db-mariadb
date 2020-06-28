@@ -41,6 +41,14 @@ jobs:
     - name: Install dependencies
       run: ${{matrix.env}} bundle install
     
+    - name: Installing packages (ubuntu)
+      if: matrix.os == 'ubuntu'
+      run: sudo apt-get install libmariadb-dev
+    
+    - name: Installing packages (macos)
+      if: matrix.os == 'macos'
+      run: brew install mariadb
+    
     - name: Setup database
       run: |
         sudo systemctl start mysql
