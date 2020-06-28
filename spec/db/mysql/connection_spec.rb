@@ -21,8 +21,11 @@
 # THE SOFTWARE.
 
 require 'db/mysql/connection'
+require 'async/rspec'
 
 RSpec.describe DB::MySQL::Connection do
+	include_context Async::RSpec::Reactor
+	
 	let(:connection_string) {"mysql://testing@localhost/test"}
 	subject(:connection) {described_class.new(connection_string)}
 	
@@ -36,5 +39,7 @@ RSpec.describe DB::MySQL::Connection do
 		rows = connection.call("SELECT 42 AS LIFE")
 		
 		expect(rows.to_a).to be == [['42']]
+		
+		connection.close
 	end
 end
