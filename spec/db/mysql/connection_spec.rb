@@ -24,7 +24,7 @@ require 'db/mysql/connection'
 
 RSpec.describe DB::MySQL::Connection do
 	let(:connection_string) {"mysql://testing@localhost/test"}
-	subject(:connection) {DB::MySQL::Connection.connect(connection_string)}
+	subject(:connection) {described_class.new(connection_string)}
 	
 	it "should connect to local server" do
 		expect(connection.status).to be == :ok

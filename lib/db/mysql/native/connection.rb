@@ -52,6 +52,8 @@ module DB
 			attach_function :mysql_errno, [:pointer], :uint
 			attach_function :mysql_error, [:pointer], :string
 			
+			attach_function :mysql_stat, [:pointer], :string
+			
 			class Connection < FFI::Pointer
 				def self.connect(connection_string = "", io: ::IO)
 					pointer = Native.mysql_init(nil)
@@ -110,6 +112,10 @@ module DB
 					if Native.mysql_errno(self) != 0
 						raise "#{message}: #{Native.mysql_error(self)}!"
 					end
+				end
+				
+				def status
+					Native.mysql_stat(self)
 				end
 				
 				def free_result

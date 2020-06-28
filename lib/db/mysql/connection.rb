@@ -41,6 +41,10 @@ module DB
 				super()
 			end
 			
+			def status
+				@native.status
+			end
+			
 			def send_query(statement)
 				@native.send_query(statement)
 			end
