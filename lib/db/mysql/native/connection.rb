@@ -34,7 +34,6 @@ module DB
 			CLIENT_MULTI_RESULTS = 0x00020000
 			
 			attach_function :mysql_init, [:pointer], :pointer
-			attach_function :mysql_error, [:pointer], :string
 			attach_function :mysql_options, [:pointer, :int, :pointer], :int
 			attach_function :mysql_get_socket, [:pointer], :int
 			
