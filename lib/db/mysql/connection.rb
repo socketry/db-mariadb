@@ -43,6 +43,12 @@ module DB
 				super()
 			end
 			
+			def close
+				@native.close
+				
+				super
+			end
+			
 			def status
 				@native.status
 			end
