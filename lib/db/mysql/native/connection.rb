@@ -129,6 +129,8 @@ module DB
 					self.free_result
 					
 					Native.mysql_close(self)
+					
+					@io.close
 				end
 				
 				def send_query(statement)
