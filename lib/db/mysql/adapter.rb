@@ -24,7 +24,7 @@ require_relative 'connection'
 
 module DB
 	module MySQL
-		LOCAL = "mysql://localhost/mysql"
+		LOCAL = "mysql://localhost/test"
 		
 		class Adapter
 			def initialize(connection_string = LOCAL)

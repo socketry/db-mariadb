@@ -23,68 +23,135 @@ require_relative '../native'
 module DB
 	module MySQL
 		module Native
-			enum :exec_status, [
-				:empty_query, # empty query string was executed
-				:command_ok, # a query command that doesn't return anything was executed properly by the backend
-				:tuples_ok, #  a query command that returns tuples was executed properly by the backend, PGresult contains the result tuples
-				:copy_out, # Copy Out data transfer in progress
-				:copy_in, # Copy In data transfer in progress
-				:bad_response, # an unexpected response was recv'd from the backend
-				:nonfatal_error, # notice or warning message
-				:fatal_error, # query failed
-				:copy_both, # Copy In/Out data transfer in progress
-				:single_tuple, # single tuple from larger resultset
-			]
+			attach_function :mysql_fetch_row_start, [:pointer, :pointer], :int
+			attach_function :mysql_fetch_row_cont, [:pointer, :pointer, :int], :int
 			
-			attach_function :result_status, :PQresultStatus, [:pointer], :exec_status
+			attach_function :mysql_num_rows, [:pointer], :uint64
+			attach_function :mysql_num_fields, [:pointer], :uint32
 			
-			attach_function :result_error_message, :PQresultErrorMessage, [:pointer], :string
+			# FieldType = enum(
+			# 	:decimal,     Mysql::Field::TYPE_DECIMAL,
+			# 	:tiny,        Mysql::Field::TYPE_TINY,
+			# 	:short,       Mysql::Field::TYPE_SHORT,
+			# 	:long,        Mysql::Field::TYPE_LONG,
+			# 	:float,       Mysql::Field::TYPE_FLOAT,
+			# 	:double,      Mysql::Field::TYPE_DOUBLE,
+			# 	:null,        Mysql::Field::TYPE_NULL,
+			# 	:timestamp,   Mysql::Field::TYPE_TIMESTAMP,
+			# 	:longlong,    Mysql::Field::TYPE_LONGLONG,
+			# 	:int24,       Mysql::Field::TYPE_INT24,
+			# 	:date,        Mysql::Field::TYPE_DATE,
+			# 	:time,        Mysql::Field::TYPE_TIME,
+			# 	:datetime,    Mysql::Field::TYPE_DATETIME,
+			# 	:year,        Mysql::Field::TYPE_YEAR,
+			# 	:newdate,     Mysql::Field::TYPE_NEWDATE,
+			# 	:varchar,     Mysql::Field::TYPE_VARCHAR,
+			# 	:bit,         Mysql::Field::TYPE_BIT,
+			# 	:newdecimal,  Mysql::Field::TYPE_NEWDECIMAL,
+			# 	:enum,        Mysql::Field::TYPE_ENUM,
+			# 	:set,         Mysql::Field::TYPE_SET,
+			# 	:tiny_blob,   Mysql::Field::TYPE_TINY_BLOB,
+			# 	:medium_blob, Mysql::Field::TYPE_MEDIUM_BLOB,
+			# 	:long_blob,   Mysql::Field::TYPE_LONG_BLOB,
+			# 	:blob,        Mysql::Field::TYPE_BLOB,
+			# 	:var_string,  Mysql::Field::TYPE_VAR_STRING,
+			# 	:string,      Mysql::Field::TYPE_STRING,
+			# 	:geometry,    Mysql::Field::TYPE_GEOMETRY,
+			# 	:char,        Mysql::Field::TYPE_CHAR,
+			# 	:interval,    Mysql::Field::TYPE_INTERVAL
+			# )
 			
-			attach_function :result_row_count, :PQntuples, [:pointer], :int
+			FieldType = :uchar
 			
-			attach_function :result_field_count, :PQnfields, [:pointer], :int
+			class Field < FFI::Struct
+				layout(
+					:name, :string,
+					:org_name, :string,
+					:table, :string,
+					:org_table, :string,
+					:db, :string,
+					:catalog, :string,
+					:def, :string,
+					:length, :ulong,
+					:max_length, :ulong,
+					:name_length, :uint,
+					:org_name_length, :uint,
+					:table_length, :uint,
+					:org_table_length, :uint,
+					:db_length, :uint,
+					:catalog_length, :uint,
+					:def_length, :uint,
+					:flags, :uint,
+					:decimals, :uint,
+					:charsetnr, :uint,
+					:type, FieldType
+				)
+				
+				def name
+					self[:name]
+				end
+			end
 			
-			attach_function :result_field_name, :PQfname, [:pointer, :int], :string
+			attach_function :mysql_fetch_fields, [:pointer], :pointer
 			
-			attach_function :result_get_value, :PQgetvalue, [:pointer, :int, :int], :string
-			
-			class Result < Pointer
-				def initialize(*)
-					super
+			class Result < FFI::Pointer
+				def initialize(connection, address)
+					super(address)
 					
-					ObjectSpace.define_finalizer(self, Native.method(:clear))
+					@connection = connection
+					@fields = nil
 				end
 				
 				def field_count
-					Native.result_field_count(self)
+					Native.mysql_num_fields(self)
+				end
+				
+				def fields
+					unless @fields
+						pointer = Native.mysql_fetch_fields(self)
+						
+						@fields = field_count.times.map do |index|
+							Field.new(pointer +  index * Field.size)
+						end
+					end
+					
+					return @fields
 				end
 				
 				def field_names
-					field_count.times.collect{|i| Native.result_field_name(self, i)}
+					fields.map(&:name)
 				end
 				
 				def row_count
-					Native.result_row_count(self)
-				end
-				
-				def get_value(row, field)
-					Native.result_get_value(self, row, field)
-				end
-				
-				def get_row(row)
-					field_count.times.collect{|j| get_value(row, j)}
+					Native.mysql_num_rows(self)
 				end
 				
 				alias count row_count
-				alias [] get_row
 				alias keys field_names
 				
 				def each
-					return to_enum unless block_given?
+					row = FFI::MemoryPointer.new(:pointer)
+					field_count = self.field_count
 					
-					row_count.times do |i|
-						yield get_row(i)
+					while true
+						status = Native.mysql_fetch_row_start(row, self)
+						
+						while status != 0
+							@connection.wait_for(status)
+							
+							status = Native.mysql_fetch_row_cont(row, self, status)
+						end
+						
+						pointer = row.read_pointer
+						
+						if pointer.null?
+							break
+						else
+							yield pointer.get_array_of_string(0, field_count)
+						end
 					end
+					
+					@connection.check_error!("Reading recordset")
 				end
 			end
 		end

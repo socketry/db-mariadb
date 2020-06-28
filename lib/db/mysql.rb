@@ -20,3 +20,8 @@
 
 require_relative 'mysql/native'
 require_relative 'mysql/connection'
+
+require_relative 'mysql/adapter'
+
+require 'db/adapters'
+DB::Adapters.register(:mysql, DB::MySQL::Adapter)

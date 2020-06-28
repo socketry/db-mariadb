@@ -18,14 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'ffi/library'
+require 'ffi'
 
 module DB
 	module MySQL
 		module Native
 			extend FFI::Library
 			
-			ffi_lib 'mysqlclient'
+			ffi_lib 'mariadb'
 		end
 	end
 end

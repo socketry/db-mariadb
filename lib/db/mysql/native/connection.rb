@@ -18,114 +18,150 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative '../native'
+require_relative 'result'
 
 module DB
 	module MySQL
 		module Native
+			MYSQL_OPT_NONBLOCK = 6000
+			
+			MYSQL_WAIT_READ = 1
+			MYSQL_WAIT_WRITE = 2
+			MYSQL_WAIT_EXCEPT = 4
+			MYSQL_WAIT_TIMEOUT = 8
+			
+			CLIENT_MULTI_STATEMENT = 0x00010000
+			CLIENT_MULTI_RESULTS = 0x00020000
+			
 			attach_function :mysql_init, [:pointer], :pointer
+			attach_function :mysql_error, [:pointer], :string
+			attach_function :mysql_options, [:pointer, :int, :pointer], :int
+			attach_function :mysql_get_socket, [:pointer], :int
+			
+			attach_function :mysql_real_connect_start, [:pointer, :pointer, :string, :string, :string, :string, :int, :string, :long], :int
+			attach_function :mysql_real_connect_cont, [:pointer, :pointer, :int], :int
+			
+			attach_function :mysql_real_query_start, [:pointer, :pointer, :string, :ulong], :int
+			attach_function :mysql_real_query_cont, [:pointer, :pointer, :int], :int
+			
+			attach_function :mysql_use_result, [:pointer], :pointer
+			attach_function :mysql_next_result, [:pointer], :int
+			attach_function :mysql_free_result, [:pointer], :void
+			
 			attach_function :mysql_close, [:pointer], :void
 			attach_function :mysql_errno, [:pointer], :uint
 			attach_function :mysql_error, [:pointer], :string
 			
-			enum :net_async_status, [
-				:complete,
-				:not_ready,
-				:error,
-				:no_more_results,
-			]
-			
-			attach_function :mysql_real_connect_nonblocking, [:pointer, :string, :string, :string, :string, :int, :string, :long], :net_async_status
-			
-			class Connection < Pointer
-				def initialize(address, io)
-					super(address)
-					
-					@io = io
-				end
-				
+			class Connection < FFI::Pointer
 				def self.connect(connection_string = "", io: ::IO)
-					pointer = Native.connect_start(connection_string)
+					pointer = Native.mysql_init(nil)
+					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
-					io = io.new(Native.socket(pointer), "r+")
+					uri = URI(connection_string)
+					host = uri.host
+					user = uri.user
+					password = uri.password
+					database = uri.path.gsub(/^\//, '')
+					port = uri.port || 0
+					unix_socket = nil
+					client_flags = CLIENT_MULTI_STATEMENT | CLIENT_MULTI_RESULTS
 					
-					while status = Native.connect_poll(pointer)
-						break if status == :ok || status == :failed
+					result = FFI::MemoryPointer.new(:pointer)
+					
+					status = Native.mysql_real_connect_start(result, pointer, host, user, password, database, port, unix_socket, client_flags);
+					
+					io = io.new(Native.mysql_get_socket(pointer), "r+")
+					
+					while status != 0
+						if status & MYSQL_WAIT_READ
+							io.wait_readable
+						elsif status & MYSQL_WAIT_WRITE
+							io.wait_writable
+						else
+							io.wait_any
+						end
 						
-						# one of :wait_readable or :wait_writable
-						io.send(status)
+						status = Native.mysql_real_connect_cont(result, pointer, status)
 					end
 					
-					Native.set_nonblocking(pointer, 1)
+					if result.read_pointer.null?
+						raise "Could not connect: #{Native.mysql_error(pointer)}!"
+					end
 					
 					return self.new(pointer, io)
 				end
 				
-				# Return the status of the connection.
-				def status
-					Native.status(self)
+				def initialize(address, io)
+					super(address)
+					
+					@io = io
+					@result = nil
 				end
 				
-				# Return the last error message.
-				def error_message
-					Native.error_message(self)
+				def wait_for(status)
+					if status & MYSQL_WAIT_READ
+						@io.wait_readable
+					elsif status & MYSQL_WAIT_WRITE
+						@io.wait_writable
+					end
 				end
 				
-				# Return the underlying socket used for IO.
-				def socket
-					Native.socket(self)
+				def check_error!(message)
+					if Native.mysql_errno(self) != 0
+						raise "#{message}: #{Native.mysql_error(self)}!"
+					end
 				end
 				
-				# Close the connection.
+				def free_result
+					if @result
+						Native.mysql_free_result(@result)
+						
+						@result = nil
+					end
+				end
+				
 				def close
+					self.free_result
+					
 					Native.mysql_close(self)
 				end
 				
 				def send_query(statement)
-					check! Native.send_query(self, statement)
+					self.free_result
 					
-					self.flush
+					error = FFI::MemoryPointer.new(:int)
+					
+					status = Native.mysql_real_query_start(error, self, statement, statement.bytesize)
+					
+					while status != 0
+						self.wait_for(status)
+						
+						status = Native.mysql_real_query_cont(error, self, status)
+					end
+					
+					if error.read_int != 0
+						raise "Could not send query: #{Native.mysql_error(self)}!"
+					end
 				end
 				
 				def next_result
-					while true
-						check! Native.consume_input(self)
+					if @result
+						self.free_result
 						
-						while Native.is_busy(self) == 0
-							result = Native.get_result(self)
-							
-							# Did we finish reading all results?
-							if result.null?
-								return nil
-							else
-								return Result.new(result)
-							end
-						end
+						# Successful and there are no more results:
+						return if Native.mysql_next_result(self) == -1
 						
-						@io.wait_readable
+						check_error!("Next result")
 					end
-				end
-				
-				private
-				
-				# After sending any command or data on a nonblocking connection, call PQflush. If it returns 1, wait for the socket to become read- or write-ready. If it becomes write-ready, call PQflush again. If it becomes read-ready, call PQconsumeInput, then call PQflush again. Repeat until PQflush returns 0. (It is necessary to check for read-ready and drain the input with PQconsumeInput, because the server can block trying to send us data, e.g. NOTICE messages, and won't read our data until we read its.) Once PQflush returns 0, wait for the socket to be read-ready and then read the response as described above.
-				def flush
-					while true
-						case Native.flush(self)
-						when 1
-							@io.wait_any
-							
-							check! Native.consume_input(self)
-						when 0
-							return
-						end
-					end
-				end
-				
-				def check! result
-					if result == 0
-						message = Native.error_message(self)
-						raise Error.new(message)
+					
+					@result = Native.mysql_use_result(self)
+					
+					if @result.null?
+						check_error!("Next result")
+						
+						return nil
+					else
+						return Result.new(self, @result)
 					end
 				end
 			end
