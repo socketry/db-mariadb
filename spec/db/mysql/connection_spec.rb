@@ -30,8 +30,8 @@ RSpec.describe DB::MySQL::Connection do
 	subject(:connection) {described_class.new(connection_string)}
 	
 	it "should connect to local server" do
-		expect(connection.status).to be == :ok
-		
+		expect(connection.status).to include("Uptime")
+	ensure
 		connection.close
 	end
 	
@@ -39,7 +39,7 @@ RSpec.describe DB::MySQL::Connection do
 		rows = connection.call("SELECT 42 AS LIFE")
 		
 		expect(rows.to_a).to be == [['42']]
-		
+	ensure
 		connection.close
 	end
 end
