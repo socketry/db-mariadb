@@ -52,6 +52,7 @@ jobs:
     - name: Setup database
       run: |
         sudo systemctl start mysql
+        mysql -uroot -proot -e "STATUS"
         mysql -uroot -proot -e "CREATE USER 'testing'@'localhost'; GRANT ALL ON *.* TO 'testing'@'localhost'; FLUSH PRIVILEGES; CREATE DATABASE test;"
     
     - name: Run tests
