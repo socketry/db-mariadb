@@ -71,18 +71,20 @@ module DB
 					
 					status = Native.mysql_real_connect_start(result, pointer, host, user, password, database, port, unix_socket, client_flags);
 					
-					io = io.new(Native.mysql_get_socket(pointer), "r+")
-					
-					while status != 0
-						if status & MYSQL_WAIT_READ
-							io.wait_readable
-						elsif status & MYSQL_WAIT_WRITE
-							io.wait_writable
-						else
-							io.wait_any
-						end
+					if status > 0
+						io = io.new(Native.mysql_get_socket(pointer), "r+")
 						
-						status = Native.mysql_real_connect_cont(result, pointer, status)
+						while status > 0
+							if status & MYSQL_WAIT_READ
+								io.wait_readable
+							elsif status & MYSQL_WAIT_WRITE
+								io.wait_writable
+							else
+								io.wait_any
+							end
+							
+							status = Native.mysql_real_connect_cont(result, pointer, status)
+						end
 					end
 					
 					if result.read_pointer.null?
