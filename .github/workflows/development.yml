@@ -39,7 +39,12 @@ jobs:
         ruby-version: ${{matrix.ruby}}
     
     - name: Install dependencies
-      run: ${{matrix.env}} bundle install --without development
+      run: ${{matrix.env}} bundle install
+    
+    - name: Setup database
+      run: |
+        sudo systemctl start mysql
+        mysql -uroot -proot -e "CREATE USER 'testing'@'localhost'; GRANT ALL ON *.* TO 'testing'@'localhost'; FLUSH PRIVILEGES; CREATE DATABASE test;"
     
     - name: Run tests
       timeout-minutes: 5

@@ -49,10 +49,8 @@ module DB
 				@native.next_result
 			end
 			
-			def call(statement, streaming: false)
+			def call(statement)
 				@native.send_query(statement)
-				
-				@native.single_row_mode! if streaming
 				
 				last_result = nil
 				

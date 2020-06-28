@@ -153,6 +153,16 @@ module DB
 					
 					@connection.check_error!("Reading recordset")
 				end
+				
+				def to_a
+					rows = []
+					
+					self.each do |row|
+						rows << row
+					end
+					
+					return rows
+				end
 			end
 		end
 	end
