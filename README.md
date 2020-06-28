@@ -1,6 +1,6 @@
 # DB::MySQL
 
-A light-weight wrapper for Ruby exposing `libmysqlclient`.
+A light-weight wrapper for Ruby connecting to MariaDB/MySQL.
 
 [![Development Status](https://github.com/socketry/db-mysql/workflows/Development/badge.svg)](https://github.com/socketry/db-mysql/actions?workflow=Development)
 
