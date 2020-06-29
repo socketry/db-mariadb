@@ -28,6 +28,7 @@ jobs:
           - os: ubuntu
             ruby: jruby
             experimental: true
+            env: JRUBY_OPTS="--debug -X+O"
           - os: ubuntu
             ruby: head
             experimental: true
