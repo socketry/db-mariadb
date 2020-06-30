@@ -44,6 +44,17 @@ RSpec.describe DB::MariaDB::Connection do
 		connection.close
 	end
 	
+	it "can get current time" do
+		connection.send_query("SELECT UTC_TIMESTAMP() as NOW")
+		
+		result = connection.next_result
+		row = result.to_a.first
+		
+		expect(row.first).to be_within(1).of(Time.now.utc)
+	ensure
+		connection.close
+	end
+	
 	describe '#append_string' do
 		it "should escape string" do
 			expect(connection.append_string("Hello 'World'")).to be == "'Hello \\'World\\''"

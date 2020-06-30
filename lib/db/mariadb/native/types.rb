@@ -50,6 +50,14 @@ module DB
 						string.to_sym
 					end
 				end
+				
+				module DateTime
+					def self.parse(string)
+						parts = string.split(/[\-\s:]/)
+						
+						return Time.utc(*parts)
+					end
+				end
 			end
 		end
 	end
