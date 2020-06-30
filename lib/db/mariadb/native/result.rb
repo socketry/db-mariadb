@@ -18,10 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative '../native'
+require_relative 'field'
 
 module DB
-	module MySQL
+	module MariaDB
 		module Native
 			attach_function :mysql_fetch_row_start, [:pointer, :pointer], :int
 			attach_function :mysql_fetch_row_cont, [:pointer, :pointer, :int], :int
@@ -29,77 +29,16 @@ module DB
 			attach_function :mysql_num_rows, [:pointer], :uint64
 			attach_function :mysql_num_fields, [:pointer], :uint32
 			
-			# FieldType = enum(
-			# 	:decimal,     Mysql::Field::TYPE_DECIMAL,
-			# 	:tiny,        Mysql::Field::TYPE_TINY,
-			# 	:short,       Mysql::Field::TYPE_SHORT,
-			# 	:long,        Mysql::Field::TYPE_LONG,
-			# 	:float,       Mysql::Field::TYPE_FLOAT,
-			# 	:double,      Mysql::Field::TYPE_DOUBLE,
-			# 	:null,        Mysql::Field::TYPE_NULL,
-			# 	:timestamp,   Mysql::Field::TYPE_TIMESTAMP,
-			# 	:longlong,    Mysql::Field::TYPE_LONGLONG,
-			# 	:int24,       Mysql::Field::TYPE_INT24,
-			# 	:date,        Mysql::Field::TYPE_DATE,
-			# 	:time,        Mysql::Field::TYPE_TIME,
-			# 	:datetime,    Mysql::Field::TYPE_DATETIME,
-			# 	:year,        Mysql::Field::TYPE_YEAR,
-			# 	:newdate,     Mysql::Field::TYPE_NEWDATE,
-			# 	:varchar,     Mysql::Field::TYPE_VARCHAR,
-			# 	:bit,         Mysql::Field::TYPE_BIT,
-			# 	:newdecimal,  Mysql::Field::TYPE_NEWDECIMAL,
-			# 	:enum,        Mysql::Field::TYPE_ENUM,
-			# 	:set,         Mysql::Field::TYPE_SET,
-			# 	:tiny_blob,   Mysql::Field::TYPE_TINY_BLOB,
-			# 	:medium_blob, Mysql::Field::TYPE_MEDIUM_BLOB,
-			# 	:long_blob,   Mysql::Field::TYPE_LONG_BLOB,
-			# 	:blob,        Mysql::Field::TYPE_BLOB,
-			# 	:var_string,  Mysql::Field::TYPE_VAR_STRING,
-			# 	:string,      Mysql::Field::TYPE_STRING,
-			# 	:geometry,    Mysql::Field::TYPE_GEOMETRY,
-			# 	:char,        Mysql::Field::TYPE_CHAR,
-			# 	:interval,    Mysql::Field::TYPE_INTERVAL
-			# )
-			
-			FieldType = :uchar
-			
-			class Field < FFI::Struct
-				layout(
-					:name, :string,
-					:org_name, :string,
-					:table, :string,
-					:org_table, :string,
-					:db, :string,
-					:catalog, :string,
-					:def, :string,
-					:length, :ulong,
-					:max_length, :ulong,
-					:name_length, :uint,
-					:org_name_length, :uint,
-					:table_length, :uint,
-					:org_table_length, :uint,
-					:db_length, :uint,
-					:catalog_length, :uint,
-					:def_length, :uint,
-					:flags, :uint,
-					:decimals, :uint,
-					:charsetnr, :uint,
-					:type, FieldType
-				)
-				
-				def name
-					self[:name]
-				end
-			end
-			
 			attach_function :mysql_fetch_fields, [:pointer], :pointer
 			
 			class Result < FFI::Pointer
-				def initialize(connection, address)
+				def initialize(connection, types = {}, address)
 					super(address)
 					
 					@connection = connection
 					@fields = nil
+					@types = types
+					@casts = nil
 				end
 				
 				def field_count
@@ -122,12 +61,28 @@ module DB
 					fields.map(&:name)
 				end
 				
+				def field_types
+					fields.map{|field| @types[field.type]}
+				end
+				
 				def row_count
 					Native.mysql_num_rows(self)
 				end
 				
 				alias count row_count
 				alias keys field_names
+				
+				def cast!(row)
+					@casts ||= self.field_types
+					
+					row.size.times do |index|
+						if cast = @casts[index]
+							row[index] = cast.parse(row[index])
+						end
+					end
+					
+					return row
+				end
 				
 				def each
 					row = FFI::MemoryPointer.new(:pointer)
@@ -147,7 +102,7 @@ module DB
 						if pointer.null?
 							break
 						else
-							yield pointer.get_array_of_string(0, field_count)
+							yield cast!(pointer.get_array_of_string(0, field_count))
 						end
 					end
 					

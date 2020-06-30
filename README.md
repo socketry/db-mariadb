@@ -1,14 +1,14 @@
-# DB::MySQL
+# DB::MariaDB
 
-A light-weight wrapper for Ruby connecting to MariaDB/MySQL.
+A light-weight wrapper for Ruby connecting to MariaDB/MariaDB.
 
-[![Development Status](https://github.com/socketry/db-mysql/workflows/Development/badge.svg)](https://github.com/socketry/db-mysql/actions?workflow=Development)
+[![Development Status](https://github.com/socketry/db-mariadb/workflows/Development/badge.svg)](https://github.com/socketry/db-mariadb/actions?workflow=Development)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'db-mysql'
+    gem 'db-mariadb'
 
 And then execute:
 
@@ -16,7 +16,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install db-mysql
+    $ gem install db-mariadb
 
 ## Usage
 

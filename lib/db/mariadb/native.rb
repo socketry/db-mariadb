@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-# Copyright, 2020, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -20,22 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'connection'
+require 'ffi'
 
 module DB
-	module MySQL
-		LOCAL = "mysql://localhost/test"
-		
-		class Adapter
-			def initialize(connection_string = LOCAL)
-				@connection_string = connection_string
-			end
+	module MariaDB
+		module Native
+			extend FFI::Library
 			
-			attr :connection_string
-			
-			def call
-				Connection.new(self.connection_string)
-			end
+			ffi_lib 'mariadb'
 		end
 	end
 end

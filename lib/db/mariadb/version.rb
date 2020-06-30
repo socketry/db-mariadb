@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 module DB
-	module MySQL
+	module MariaDB
 		VERSION = "0.1.0"
 	end
 end

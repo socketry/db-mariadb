@@ -24,8 +24,8 @@ require 'async/pool/resource'
 require_relative 'native/connection'
 
 module DB
-	module MySQL
-		# This implements the interface between the underlying 
+	module MariaDB
+		# This implements the interface between the underyling native interface interface and "standardised" connection interface.
 		class Connection < Async::Pool::Resource
 			def initialize(**options)
 				@native = Native::Connection.connect(**options)

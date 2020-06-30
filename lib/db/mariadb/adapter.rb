@@ -1,4 +1,6 @@
-# Copyright, 2018, by Samuel G. D. Williams. <http://www.codeotaku.com>
+# frozen_string_literal: true
+
+# Copyright, 2020, by Samuel G. D. Williams. <http://www.codeotaku.com>
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,10 +20,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require_relative 'mysql/native'
-require_relative 'mysql/connection'
+require_relative 'connection'
 
-require_relative 'mysql/adapter'
-
-require 'db/adapters'
-DB::Adapters.register(:mysql, DB::MySQL::Adapter)
+module DB
+	module MariaDB
+		LOCAL = "mysql://localhost/test"
+		
+		class Adapter
+			def initialize(connection_string = LOCAL)
+				@connection_string = connection_string
+			end
+			
+			attr :connection_string
+			
+			def call
+				Connection.new(self.connection_string)
+			end
+		end
+	end
+end

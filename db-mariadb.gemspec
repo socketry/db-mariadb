@@ -1,11 +1,11 @@
 
-require_relative "lib/db/mysql/version"
+require_relative "lib/db/mariadb/version"
 
 Gem::Specification.new do |spec|
-	spec.name = "db-mysql"
-	spec.version = DB::MySQL::VERSION
+	spec.name = "db-mariadb"
+	spec.version = DB::MariaDB::VERSION
 	
-	spec.summary = "Ruby FFI bindings for libpq C interface."
+	spec.summary = "An event-driven interface for MariaDB and MySQL servers."
 	spec.authors = ["Samuel Williams"]
 	spec.license = "MIT"
 	

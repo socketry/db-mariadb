@@ -20,10 +20,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'db/mysql/connection'
+require 'db/mariadb/connection'
 require 'async/rspec'
 
-RSpec.describe DB::MySQL::Connection do
+RSpec.describe DB::MariaDB::Connection do
 	include_context Async::RSpec::Reactor
 	
 	subject(:connection) {described_class.new(user: 'testing', database: 'test')}
@@ -39,7 +39,7 @@ RSpec.describe DB::MySQL::Connection do
 		
 		result = connection.next_result
 		
-		expect(result.to_a).to be == [['42']]
+		expect(result.to_a).to be == [[42]]
 	ensure
 		connection.close
 	end

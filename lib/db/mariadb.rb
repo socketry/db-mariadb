@@ -18,14 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'ffi'
+require_relative 'mariadb/native'
+require_relative 'mariadb/connection'
 
-module DB
-	module MySQL
-		module Native
-			extend FFI::Library
-			
-			ffi_lib 'mariadb'
-		end
-	end
-end
+require_relative 'mariadb/adapter'
+
+require 'db/adapters'
+DB::Adapters.register(:mysql, DB::MariaDB::Adapter)

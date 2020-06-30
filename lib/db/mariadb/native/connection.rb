@@ -22,7 +22,7 @@ require_relative 'result'
 require 'async/io/generic'
 
 module DB
-	module MySQL
+	module MariaDB
 		module Native
 			MYSQL_OPT_NONBLOCK = 6000
 			
@@ -69,7 +69,7 @@ module DB
 			end
 			
 			class Connection < FFI::Pointer
-				def self.connect(host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, **options)
+				def self.connect(host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
@@ -103,14 +103,16 @@ module DB
 						raise "Could not connect: #{Native.mysql_error(pointer)}!"
 					end
 					
-					return self.new(pointer, io)
+					return self.new(pointer, io, types: types, **options)
 				end
 				
-				def initialize(address, io)
+				def initialize(address, io, types: {})
 					super(address)
 					
 					@io = io
 					@result = nil
+					
+					@types = types
 				end
 				
 				def wait_for(status)
@@ -176,7 +178,7 @@ module DB
 					end
 				end
 				
-				def next_result
+				def next_result(types: @types)
 					if @result
 						self.free_result
 						
@@ -193,7 +195,7 @@ module DB
 						
 						return nil
 					else
-						return Result.new(self, @result)
+						return Result.new(self, types, @result)
 					end
 				end
 				
