@@ -26,8 +26,7 @@ require 'async/rspec'
 RSpec.describe DB::MySQL::Connection do
 	include_context Async::RSpec::Reactor
 	
-	let(:connection_string) {"mysql://testing@localhost/test"}
-	subject(:connection) {described_class.new(connection_string)}
+	subject(:connection) {described_class.new(user: 'testing', database: 'test')}
 	
 	it "should connect to local server" do
 		expect(connection.status).to include("Uptime")
@@ -43,5 +42,36 @@ RSpec.describe DB::MySQL::Connection do
 		expect(result.to_a).to be == [['42']]
 	ensure
 		connection.close
+	end
+	
+	describe '#append_string' do
+		it "should escape string" do
+			expect(connection.append_string("Hello 'World'")).to be == "'Hello \\'World\\''"
+			expect(connection.append_string('Hello "World"')).to be == "'Hello \\\"World\\\"'"
+		ensure
+			connection.close
+		end
+	end
+	
+	describe '#append_literal' do
+		it "should escape string" do
+			expect(connection.append_literal("Hello World")).to be == "'Hello World'"
+		ensure
+			connection.close
+		end
+		
+		it "should not escape integers" do
+			expect(connection.append_literal(42)).to be == "42"
+		ensure
+			connection.close
+		end
+	end
+	
+	describe '#append_identifier' do
+		it "should escape identifier" do
+			expect(connection.append_identifier("Hello World")).to be == "`Hello World`"
+		ensure
+			connection.close
+		end
 	end
 end

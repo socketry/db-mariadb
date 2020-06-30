@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'result'
+require 'async/io/generic'
 
 module DB
 	module MySQL
@@ -30,6 +31,8 @@ module DB
 			MYSQL_WAIT_EXCEPT = 4
 			MYSQL_WAIT_TIMEOUT = 8
 			
+			CLIENT_COMPRESS = 0x00000020
+			CLIENT_LOCAL_FILES = 0x00000080
 			CLIENT_MULTI_STATEMENT = 0x00010000
 			CLIENT_MULTI_RESULTS = 0x00020000
 			
@@ -47,32 +50,41 @@ module DB
 			attach_function :mysql_next_result, [:pointer], :int
 			attach_function :mysql_free_result, [:pointer], :void
 			
+			attach_function :mysql_affected_rows, [:pointer], :uint64
+			attach_function :mysql_insert_id, [:pointer], :uint64
+			attach_function :mysql_info, [:pointer], :string
+			
 			attach_function :mysql_close, [:pointer], :void
 			attach_function :mysql_errno, [:pointer], :uint
 			attach_function :mysql_error, [:pointer], :string
 			
 			attach_function :mysql_stat, [:pointer], :string
 			
+			attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
+			
+			module IO
+				def self.new(fd, mode)
+					Async::IO::Generic.new(::IO.new(fd, mode, autoclose: false))
+				end
+			end
+			
 			class Connection < FFI::Pointer
-				def self.connect(connection_string = "", io: ::IO)
+				def self.connect(host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
-					uri = URI(connection_string)
-					host = uri.host
-					user = uri.user
-					password = uri.password
-					database = uri.path.gsub(/^\//, '')
-					port = uri.port || 0
-					unix_socket = nil
-					client_flags = CLIENT_MULTI_STATEMENT | CLIENT_MULTI_RESULTS
+					client_flags |= CLIENT_MULTI_STATEMENT | CLIENT_MULTI_RESULTS
+					
+					if compression
+						client_flags |= CLIENT_COMPRESSION
+					end
 					
 					result = FFI::MemoryPointer.new(:pointer)
 					
 					status = Native.mysql_real_connect_start(result, pointer, host, user, password, database, port, unix_socket, client_flags);
 					
 					if status > 0
-						io = io.new(Native.mysql_get_socket(pointer), "r+")
+						io = IO.new(Native.mysql_get_socket(pointer), "r+")
 						
 						while status > 0
 							if status & MYSQL_WAIT_READ
@@ -135,6 +147,17 @@ module DB
 					@io.close
 				end
 				
+				def escape(value)
+					value = value.to_s
+					
+					maximum_length = value.bytesize * 2 + 1
+					out = FFI::MemoryPointer.new(:char, maximum_length)
+					
+					Native.mysql_real_escape_string(self, out, value, value.bytesize)
+					
+					return out.read_string
+				end
+				
 				def send_query(statement)
 					self.free_result
 					
@@ -172,6 +195,18 @@ module DB
 					else
 						return Result.new(self, @result)
 					end
+				end
+				
+				def affected_rows
+					Native.mysql_affected_rows(self)
+				end
+				
+				def insert_id
+					Native.mysql_insert_id(self)
+				end
+				
+				def info
+					Native.mysql_info(self)
 				end
 			end
 		end

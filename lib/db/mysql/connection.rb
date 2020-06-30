@@ -23,22 +23,12 @@
 require 'async/pool/resource'
 require_relative 'native/connection'
 
-require 'async/io/generic'
-
 module DB
 	module MySQL
-		module IO
-			def self.new(fd, mode)
-				Async::IO::Generic.new(::IO.new(fd, mode, autoclose: false))
-			end
-		end
-		
 		# This implements the interface between the underlying 
 		class Connection < Async::Pool::Resource
-			def initialize(connection_string)
-				@native = Native::Connection.connect(
-					connection_string, io: IO
-				)
+			def initialize(**options)
+				@native = Native::Connection.connect(**options)
 				
 				super()
 			end
@@ -47,6 +37,31 @@ module DB
 				@native.close
 				
 				super
+			end
+			
+			def append_string(value, buffer = String.new)
+				buffer << "'" << @native.escape(value) << "'"
+				
+				return buffer
+			end
+			
+			def append_literal(value, buffer = String.new)
+				case value
+				when Numeric
+					buffer << value.to_s
+				when nil
+					buffer << "NULL"
+				else
+					append_string(value, buffer)
+				end
+				
+				return buffer
+			end
+			
+			def append_identifier(value, buffer = String.new)
+				buffer << "`" << @native.escape(value) << "`"
+				
+				return buffer
 			end
 			
 			def status
