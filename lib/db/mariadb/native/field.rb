@@ -25,7 +25,7 @@ require_relative 'types'
 module DB
 	module MariaDB
 		module Native
-			Type = enum(FFI::Type::UCHAR,
+			Type = enum(
 				:decimal,
 				:tiny,
 				:short,
@@ -98,7 +98,8 @@ module DB
 					:flags, :uint,
 					:decimals, :uint,
 					:charsetnr, :uint,
-					:type, Type
+					:type, Type,
+					:extension, :pointer,
 				)
 				
 				def name
