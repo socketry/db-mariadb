@@ -45,7 +45,7 @@ RSpec.describe DB::MariaDB::Connection do
 	end
 	
 	it "can get current time" do
-		connection.send_query("SELECT UTC_TIMESTAMP() as NOW")
+		connection.send_query("SELECT UTC_TIMESTAMP() AS NOW")
 		
 		result = connection.next_result
 		row = result.to_a.first
