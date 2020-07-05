@@ -48,6 +48,7 @@ module DB
 			
 			attach_function :mysql_use_result, [:pointer], :pointer
 			attach_function :mysql_next_result, [:pointer], :int
+			attach_function :mysql_more_results, [:pointer], :int
 			attach_function :mysql_free_result, [:pointer], :void
 			
 			attach_function :mysql_affected_rows, [:pointer], :uint64
@@ -94,7 +95,7 @@ module DB
 					end
 					
 					if result.read_pointer.null?
-						raise "Could not connect: #{Native.mysql_error(pointer)}!"
+						raise Error, "Could not connect: #{Native.mysql_error(pointer)}!"
 					end
 					
 					return self.new(pointer, io, types, **options)
@@ -119,7 +120,7 @@ module DB
 				
 				def check_error!(message)
 					if Native.mysql_errno(self) != 0
-						raise "#{message}: #{Native.mysql_error(self)}!"
+						raise Error, "#{message}: #{Native.mysql_error(self)}!"
 					end
 				end
 				
@@ -168,29 +169,27 @@ module DB
 					end
 					
 					if error.read_int != 0
-						raise "Could not send query: #{Native.mysql_error(self)}!"
+						raise Error, "Could not send query: #{Native.mysql_error(self)}!"
 					end
 				end
 				
+				# @returns [Boolean] If there are more results.
+				def more_results?
+					Native.mysql_more_results(self) == 1
+				end
+				
 				def next_result(types: @types)
-					if @result
-						self.free_result
-						
-						# Successful and there are no more results:
-						return if Native.mysql_next_result(self) == -1
-						
-						check_error!("Next result")
+					if result = self.get_result
+						return Result.new(self, types, result)
+					end
+				end
+				
+				# Silently discard any results that application didn't read.
+				def discard_results
+					while result = self.get_result
 					end
 					
-					@result = Native.mysql_use_result(self)
-					
-					if @result.null?
-						check_error!("Next result")
-						
-						return nil
-					else
-						return Result.new(self, types, @result)
-					end
+					return nil
 				end
 				
 				def affected_rows
@@ -203,6 +202,28 @@ module DB
 				
 				def info
 					Native.mysql_info(self)
+				end
+				
+			protected
+				def get_result
+					if @result
+						self.free_result
+						
+						# Successful and there are no more results:
+						return if Native.mysql_next_result(self) == -1
+						
+						check_error!("Get result")
+					end
+					
+					@result = Native.mysql_use_result(self)
+					
+					if @result.null?
+						check_error!("Get result")
+						
+						return nil
+					else
+						return @result
+					end
 				end
 			end
 		end
