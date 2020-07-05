@@ -55,8 +55,12 @@ module DB
 				case value
 				when Numeric
 					buffer << value.to_s
+				when TrueClass
+					buffer << 'TRUE'
+				when FalseClass
+					buffer << 'FALSE'
 				when nil
-					buffer << "NULL"
+					buffer << 'NULL'
 				else
 					append_string(value, buffer)
 				end
