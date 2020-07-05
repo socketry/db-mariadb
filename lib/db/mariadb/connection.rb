@@ -21,6 +21,8 @@
 # THE SOFTWARE.
 
 require 'async/pool/resource'
+require 'async/io/generic'
+
 require_relative 'native/connection'
 
 module DB

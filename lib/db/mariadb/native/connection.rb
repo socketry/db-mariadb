@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 require_relative 'result'
-require 'async/io/generic'
+require_relative '../error'
 
 module DB
 	module MariaDB
