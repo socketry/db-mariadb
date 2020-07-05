@@ -101,7 +101,7 @@ module DB
 					return self.new(pointer, io, types, **options)
 				end
 				
-				def initialize(address, io, types)
+				def initialize(address, io, types, **options)
 					super(address)
 					
 					@io = io
