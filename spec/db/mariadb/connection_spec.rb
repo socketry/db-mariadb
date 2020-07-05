@@ -26,7 +26,7 @@ require 'async/rspec'
 RSpec.describe DB::MariaDB::Connection do
 	include_context Async::RSpec::Reactor
 	
-	subject(:connection) {described_class.new(user: 'testing', database: 'test')}
+	subject(:connection) {described_class.new(database: 'test')}
 	
 	it "should connect to local server" do
 		expect(connection.status).to include("Uptime")
