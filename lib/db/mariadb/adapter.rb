@@ -27,14 +27,14 @@ module DB
 		LOCAL = "mysql://localhost/test"
 		
 		class Adapter
-			def initialize(connection_string = LOCAL)
-				@connection_string = connection_string
+			def initialize(**options)
+				@options = options
 			end
 			
-			attr :connection_string
+			attr :options
 			
 			def call
-				Connection.new(self.connection_string)
+				Connection.new(**@options)
 			end
 		end
 	end
