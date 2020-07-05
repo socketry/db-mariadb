@@ -27,12 +27,6 @@ require_relative 'native/connection'
 
 module DB
 	module MariaDB
-		module IO
-			def self.new(fd, mode)
-				Async::IO::Generic.new(::IO.new(fd, mode, autoclose: false))
-			end
-		end
-		
 		# This implements the interface between the underyling native interface interface and "standardised" connection interface.
 		class Connection < Async::Pool::Resource
 			def initialize(**options)
