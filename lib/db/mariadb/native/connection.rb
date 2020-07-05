@@ -70,7 +70,7 @@ module DB
 			end
 			
 			class Connection < FFI::Pointer
-				def self.connect(io: IO, host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
+				def self.connect(wrapper: IO, host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
@@ -85,7 +85,7 @@ module DB
 					status = Native.mysql_real_connect_start(result, pointer, host, user, password, database, port, unix_socket, client_flags);
 					
 					if status > 0
-						io = IO.new(Native.mysql_get_socket(pointer), "r+")
+						io = wrapper.new(Native.mysql_get_socket(pointer), "r+")
 						
 						while status > 0
 							if status & MYSQL_WAIT_READ
