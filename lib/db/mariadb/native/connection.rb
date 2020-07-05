@@ -62,14 +62,8 @@ module DB
 			
 			attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
 			
-			module IO
-				def self.new(fd, mode)
-					Async::IO::Generic.new(::IO.new(fd, mode, autoclose: false))
-				end
-			end
-			
 			class Connection < FFI::Pointer
-				def self.connect(host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
+				def self.connect(io: IO, host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
@@ -103,10 +97,10 @@ module DB
 						raise "Could not connect: #{Native.mysql_error(pointer)}!"
 					end
 					
-					return self.new(pointer, io, types: types, **options)
+					return self.new(pointer, io, types, **options)
 				end
 				
-				def initialize(address, io, types: {})
+				def initialize(address, io, types)
 					super(address)
 					
 					@io = io
