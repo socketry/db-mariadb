@@ -24,4 +24,4 @@ require_relative 'mariadb/connection'
 require_relative 'mariadb/adapter'
 
 require 'db/adapters'
-DB::Adapters.register(:mysql, DB::MariaDB::Adapter)
+DB::Adapters.register(:mariadb, DB::MariaDB::Adapter)
