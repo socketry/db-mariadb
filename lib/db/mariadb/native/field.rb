@@ -22,6 +22,9 @@ require_relative '../native'
 
 require_relative 'types'
 
+require 'date'
+require 'json'
+
 module DB
 	module MariaDB
 		module Native
