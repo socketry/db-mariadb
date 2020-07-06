@@ -84,9 +84,9 @@ module DB
 					
 					status = Native.mysql_real_connect_start(result, pointer, host, user, password, database, port, unix_socket, client_flags);
 					
+					io = wrapper.new(Native.mysql_get_socket(pointer), "r+")
+					
 					if status > 0
-						io = wrapper.new(Native.mysql_get_socket(pointer), "r+")
-						
 						while status > 0
 							if status & MYSQL_WAIT_READ
 								io.wait_readable
