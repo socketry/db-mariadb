@@ -32,6 +32,22 @@ jobs:
             ruby: head
             experimental: true
     
+    services:
+      mariadb:
+        image: mariadb
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+          MYSQL_DATABASE: test
+          MYSQL_ROOT_PASSWORD: test
+        options: >-
+          --health-cmd "mysqladmin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+    
     steps:
     - uses: actions/checkout@v2
     - uses: ruby/setup-ruby@v1
@@ -41,16 +57,13 @@ jobs:
     - name: Install dependencies
       run: ${{matrix.env}} bundle install
     
-    - name: Preparing environment (ubuntu)
+    - name: Installing dependencies (ubuntu)
       if: matrix.os == 'ubuntu'
       run: |
+        sudo systemctl stop mysql
         sudo apt-get install libmariadb-dev
-        sudo systemctl start mysql
-        mysql -uroot -proot -e "STATUS"
-        mysql -uroot -proot -e "CREATE USER '$(id -un)'@'localhost'; GRANT ALL ON *.* TO '$(id -un)'@'localhost'; FLUSH PRIVILEGES; CREATE DATABASE test;"
     
     - name: Run tests
       timeout-minutes: 5
       run: |
-        export MYSQL_UNIX_PORT=/var/run/mysqld/mysqld.sock
         ${{matrix.env}} bundle exec rspec
