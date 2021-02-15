@@ -24,8 +24,6 @@ require_relative 'connection'
 
 module DB
 	module MariaDB
-		LOCAL = "mysql://localhost/test"
-		
 		class Adapter
 			def initialize(**options)
 				@options = options
