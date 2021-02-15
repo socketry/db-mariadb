@@ -24,6 +24,9 @@ require_relative '../error'
 module DB
 	module MariaDB
 		module Native
+			MYSQL_PROTOCOL_TCP = 1
+			
+			MYSQL_OPT_PROTOCOL = 9
 			MYSQL_OPT_NONBLOCK = 6000
 			
 			MYSQL_WAIT_READ = 1
@@ -70,9 +73,13 @@ module DB
 			end
 			
 			class Connection < FFI::Pointer
-				def self.connect(wrapper: IO, host: 'localhost', user: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
+				def self.connect(wrapper: IO, host: 'localhost', username: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
+					
+					# if protocol
+					# 	Native.mysql_options(pointer, MYSQL_OPT_PROTOCOL, FFI::MemoryPointer.new(:uint, protocol))
+					# end
 					
 					client_flags |= CLIENT_MULTI_STATEMENT | CLIENT_MULTI_RESULTS
 					
@@ -82,7 +89,7 @@ module DB
 					
 					result = FFI::MemoryPointer.new(:pointer)
 					
-					status = Native.mysql_real_connect_start(result, pointer, host, user, password, database, port, unix_socket, client_flags);
+					status = Native.mysql_real_connect_start(result, pointer, host, username, password, database, port, unix_socket, client_flags);
 					
 					io = wrapper.new(Native.mysql_get_socket(pointer), "r+")
 					
