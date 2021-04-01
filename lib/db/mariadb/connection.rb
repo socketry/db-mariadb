@@ -65,7 +65,18 @@ module DB
 			end
 			
 			def append_identifier(value, buffer = String.new)
-				buffer << "`" << @native.escape(value) << "`"
+				case value
+				when Array
+					first = true
+					value.each do |part|
+						buffer << '.' unless first
+						first = false
+						
+						buffer << escape_identifier(part)
+					end
+				else
+					buffer << escape_identifier(value)
+				end
 				
 				return buffer
 			end
@@ -96,6 +107,12 @@ module DB
 			
 			def next_result
 				@native.next_result
+			end
+			
+			protected
+			
+			def escape_identifier(value)
+				"`#{@native.escape(value)}`"
 			end
 		end
 	end
