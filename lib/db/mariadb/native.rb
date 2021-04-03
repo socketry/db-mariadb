@@ -18,14 +18,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'ffi'
+require 'ffi/module'
+require 'ffi/module/config_tool'
 
 module DB
 	module MariaDB
 		module Native
-			extend FFI::Library
+			extend FFI::Module::Library
+			extend FFI::Module::Loader
+			extend FFI::Module::ConfigTool
 			
-			ffi_lib 'mariadb'
+			ffi_load('mariadb') || ffi_load_using_config_tool(%w{mysql_config --libs})
 		end
 	end
 end

@@ -28,7 +28,7 @@ require 'json'
 module DB
 	module MariaDB
 		module Native
-			Type = enum(
+			Type = ffi_define_enumeration(:field_type, [
 				:decimal,
 				:tiny,
 				:short,
@@ -57,7 +57,7 @@ module DB
 				:var_string,
 				:string,
 				:geometry,
-			)
+			])
 			
 			DEFAULT_TYPES = {
 				decimal: Types::Decimal,

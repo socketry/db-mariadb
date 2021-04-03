@@ -39,32 +39,32 @@ module DB
 			CLIENT_MULTI_STATEMENT = 0x00010000
 			CLIENT_MULTI_RESULTS = 0x00020000
 			
-			attach_function :mysql_init, [:pointer], :pointer
-			attach_function :mysql_options, [:pointer, :int, :pointer], :int
-			attach_function :mysql_get_socket, [:pointer], :int
+			ffi_attach_function :mysql_init, [:pointer], :pointer
+			ffi_attach_function :mysql_options, [:pointer, :int, :pointer], :int
+			ffi_attach_function :mysql_get_socket, [:pointer], :int
 			
-			attach_function :mysql_real_connect_start, [:pointer, :pointer, :string, :string, :string, :string, :int, :string, :long], :int
-			attach_function :mysql_real_connect_cont, [:pointer, :pointer, :int], :int
+			ffi_attach_function :mysql_real_connect_start, [:pointer, :pointer, :string, :string, :string, :string, :int, :string, :long], :int
+			ffi_attach_function :mysql_real_connect_cont, [:pointer, :pointer, :int], :int
 			
-			attach_function :mysql_real_query_start, [:pointer, :pointer, :string, :ulong], :int
-			attach_function :mysql_real_query_cont, [:pointer, :pointer, :int], :int
+			ffi_attach_function :mysql_real_query_start, [:pointer, :pointer, :string, :ulong], :int
+			ffi_attach_function :mysql_real_query_cont, [:pointer, :pointer, :int], :int
 			
-			attach_function :mysql_use_result, [:pointer], :pointer
-			attach_function :mysql_next_result, [:pointer], :int
-			attach_function :mysql_more_results, [:pointer], :int
-			attach_function :mysql_free_result, [:pointer], :void
+			ffi_attach_function :mysql_use_result, [:pointer], :pointer
+			ffi_attach_function :mysql_next_result, [:pointer], :int
+			ffi_attach_function :mysql_more_results, [:pointer], :int
+			ffi_attach_function :mysql_free_result, [:pointer], :void
 			
-			attach_function :mysql_affected_rows, [:pointer], :uint64
-			attach_function :mysql_insert_id, [:pointer], :uint64
-			attach_function :mysql_info, [:pointer], :string
+			ffi_attach_function :mysql_affected_rows, [:pointer], :uint64
+			ffi_attach_function :mysql_insert_id, [:pointer], :uint64
+			ffi_attach_function :mysql_info, [:pointer], :string
 			
-			attach_function :mysql_close, [:pointer], :void
-			attach_function :mysql_errno, [:pointer], :uint
-			attach_function :mysql_error, [:pointer], :string
+			ffi_attach_function :mysql_close, [:pointer], :void
+			ffi_attach_function :mysql_errno, [:pointer], :uint
+			ffi_attach_function :mysql_error, [:pointer], :string
 			
-			attach_function :mysql_stat, [:pointer], :string
+			ffi_attach_function :mysql_stat, [:pointer], :string
 			
-			attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
+			ffi_attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
 			
 			module IO
 				def self.new(fd, mode)

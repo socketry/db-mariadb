@@ -23,13 +23,13 @@ require_relative 'field'
 module DB
 	module MariaDB
 		module Native
-			attach_function :mysql_fetch_row_start, [:pointer, :pointer], :int
-			attach_function :mysql_fetch_row_cont, [:pointer, :pointer, :int], :int
+			ffi_attach_function :mysql_fetch_row_start, [:pointer, :pointer], :int
+			ffi_attach_function :mysql_fetch_row_cont, [:pointer, :pointer, :int], :int
 			
-			attach_function :mysql_num_rows, [:pointer], :uint64
-			attach_function :mysql_num_fields, [:pointer], :uint32
+			ffi_attach_function :mysql_num_rows, [:pointer], :uint64
+			ffi_attach_function :mysql_num_fields, [:pointer], :uint32
 			
-			attach_function :mysql_fetch_fields, [:pointer], :pointer
+			ffi_attach_function :mysql_fetch_fields, [:pointer], :pointer
 			
 			class Result < FFI::Pointer
 				def initialize(connection, types = {}, address)
