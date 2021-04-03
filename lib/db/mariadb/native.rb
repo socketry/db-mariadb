@@ -28,7 +28,9 @@ module DB
 			extend FFI::Module::Loader
 			extend FFI::Module::ConfigTool
 			
-			ffi_load('mariadb') || ffi_load_using_config_tool(%w{mysql_config --libs})
+			ffi_load('mariadb') ||
+				ffi_load_using_config_tool(%w{mariadb_config --libs}) ||
+				ffi_load_using_config_tool(%w{mysql_config --libs})
 		end
 	end
 end
