@@ -109,6 +109,16 @@ module DB
 					@connection.check_error!("Reading recordset")
 				end
 				
+				def map(&block)
+					results = []
+					
+					self.each do |row|
+						results << yield row
+					end
+					
+					return results
+				end
+				
 				def to_a
 					rows = []
 					
