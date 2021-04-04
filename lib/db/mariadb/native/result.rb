@@ -113,7 +113,7 @@ module DB
 					results = []
 					
 					self.each do |row|
-						results << yield row
+						results << yield(row)
 					end
 					
 					return results
