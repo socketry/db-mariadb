@@ -86,10 +86,10 @@ module DB
 				
 				append_identifier(name, buffer)
 				
-				buffer << " BIGINT AUTO_INCREMENT"
+				buffer << " BIGINT"
 				
 				if primary
-					buffer << " PRIMARY KEY"
+					buffer << " AUTO_INCREMENT PRIMARY KEY"
 				elsif !null
 					buffer << " NOT NULL"
 				end
