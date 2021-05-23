@@ -74,7 +74,7 @@ module DB
 				year: Types::Integer,
 				newdate: Types::DateTime,
 				bit: Types::Integer,
-				json: JSON,
+				json: Types::JSON,
 				newdecimal: Types::Decimal,
 				enum: Types::Symbol,
 				set: Types::Integer,
