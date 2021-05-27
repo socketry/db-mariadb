@@ -43,6 +43,16 @@ RSpec.describe DB::MariaDB::Connection do
 	ensure
 		connection.close
 	end
+
+	it "can list tables" do
+		connection.send_query("SELECT * FROM INFORMATION_SCHEMA.TABLES")
+
+		result = connection.next_result
+
+		pp result.to_a
+	ensure
+		connection.close
+	end
 	
 	it "can get current time" do
 		connection.send_query("SELECT UTC_TIMESTAMP() AS NOW")
