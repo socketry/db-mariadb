@@ -49,6 +49,10 @@ module DB
 			
 			def append_literal(value, buffer = String.new)
 				case value
+				when Time, DateTime
+					append_string(value.utc.strftime('%Y-%m-%d %H:%M:%S'), buffer)
+				when Date
+					append_string(value.strftime('%Y-%m-%d'), buffer)
 				when Numeric
 					buffer << value.to_s
 				when TrueClass
