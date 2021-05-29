@@ -61,7 +61,7 @@ module DB
 			
 			DEFAULT_TYPES = {
 				decimal: Types::Decimal,
-				tiny: Types::Integer,
+				tiny: Types::Boolean,
 				short: Types::Integer,
 				long: Types::Integer,
 				float: Types::Float,
@@ -111,6 +111,10 @@ module DB
 				
 				def type
 					self[:type]
+				end
+				
+				def inspect
+					"\#<#{self.class} #{self.to_h}>"
 				end
 			end
 		end

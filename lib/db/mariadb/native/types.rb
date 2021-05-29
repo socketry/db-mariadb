@@ -33,6 +33,21 @@ module DB
 					end
 				end
 				
+				module Boolean
+					def self.parse(string)
+						case string
+						when '0'
+							false
+						when '1'
+							true
+						when nil
+							nil
+						else
+							Integer(string)
+						end
+					end
+				end
+				
 				module Decimal
 					def self.parse(string)
 						BigDecimal(string) if string

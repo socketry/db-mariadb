@@ -94,5 +94,19 @@ RSpec.describe DB::MariaDB::Connection do
 		ensure
 			connection.close
 		end
+		
+		it "can handle booleans" do
+			buffer = String.new
+			buffer << "SELECT "
+			connection.append_literal(true, buffer)
+			
+			connection.send_query(buffer)
+			
+			result = connection.next_result
+			pp result.fields
+			row = result.to_a.first
+			
+			expect(row.first).to be true
+		end
 	end
 end
