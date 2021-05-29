@@ -61,7 +61,8 @@ module DB
 			
 			DEFAULT_TYPES = {
 				decimal: Types::Decimal,
-				tiny: Types::Boolean,
+				boolean: Types::Boolean,
+				tiny: Types::Integer,
 				short: Types::Integer,
 				long: Types::Integer,
 				float: Types::Float,
@@ -105,16 +106,24 @@ module DB
 					:extension, :pointer,
 				)
 				
+				def boolean?
+					self[:length] == 1 and self[:type] == :tiny || self[:type] == :long
+				end
+				
 				def name
 					self[:name]
 				end
 				
 				def type
-					self[:type]
+					if boolean?
+						:boolean
+					else
+						self[:type]
+					end
 				end
 				
 				def inspect
-					"\#<#{self.class} #{self.to_h}>"
+					"\#<#{self.class} name=#{self.name} type=#{self.type} length=#{self[:length]}>"
 				end
 			end
 		end

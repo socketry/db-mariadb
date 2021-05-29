@@ -49,7 +49,7 @@ RSpec.describe DB::MariaDB::Connection do
 		
 		result = connection.next_result
 		
-		expect(result).to_not be_empty
+		expect(result.to_a).to_not be_empty
 	ensure
 		connection.close
 	end
@@ -103,10 +103,11 @@ RSpec.describe DB::MariaDB::Connection do
 			connection.send_query(buffer)
 			
 			result = connection.next_result
-			pp result.fields
 			row = result.to_a.first
 			
 			expect(row.first).to be true
+		ensure
+			connection.close
 		end
 	end
 end
