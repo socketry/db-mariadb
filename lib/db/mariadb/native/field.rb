@@ -107,7 +107,7 @@ module DB
 				)
 				
 				def boolean?
-					self[:length] == 1 and self[:type] == :tiny || self[:type] == :long
+					self[:length] == 1 && (self[:type] == :tiny || self[:type] == :long)
 				end
 				
 				def name
