@@ -20,6 +20,26 @@ Or install it yourself as:
 
 ## Usage
 
+### Test Setup
+
+#### Darwin/MacPorts
+
+Start the local server:
+
+~~~
+> cd '/opt/local' ; /opt/local/lib/mariadb-10.5/bin/mysqld_safe --user=_mysql --datadir='/opt/local/var/db/mariadb-10.5'
+~~~
+
+Setup local test permissions:
+
+~~~
+> sudo /opt/local/lib/mariadb-10.5/bin/mysql
+
+> CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';
+> GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost';
+> FLUSH PRIVILEGES;
+~~~
+
 ## Contributing
 
 1.  Fork it
