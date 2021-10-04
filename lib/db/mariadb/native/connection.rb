@@ -123,6 +123,8 @@ module DB
 					@types = types
 				end
 				
+				attr :types
+				
 				def wait_for(status)
 					if status & MYSQL_WAIT_READ
 						@io.wait_readable
