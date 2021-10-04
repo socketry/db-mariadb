@@ -18,8 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'ffi'
-
 require 'json'
 require 'bigdecimal'
 
@@ -27,14 +25,36 @@ module DB
 	module MariaDB
 		module Native
 			module Types
-				module Integer
-					def self.parse(string)
+				class Text
+					def initialize(name = "TEXT")
+						@name = name
+					end
+					
+					attr :name
+					
+					def parse(string)
+						string
+					end
+				end
+				
+				class Integer
+					def initialize(name = "INTEGER")
+						@name = name
+					end
+					
+					attr :name
+					
+					def parse(string)
 						Integer(string) if string
 					end
 				end
 				
-				module Boolean
-					def self.parse(string)
+				class Boolean
+					def name
+						"BOOLEAN"
+					end
+					
+					def parse(string)
 						case string
 						when '0'
 							false
@@ -48,26 +68,46 @@ module DB
 					end
 				end
 				
-				module Decimal
-					def self.parse(string)
+				class Decimal
+					def name
+						"DECIMAL"
+					end
+					
+					def parse(string)
 						BigDecimal(string) if string
 					end
 				end
 				
-				module Float
-					def self.parse(string)
+				class Float
+					def initialize(name = "FLOAT")
+						@name = name
+					end
+					
+					attr :name
+					
+					def parse(string)
 						Float(string) if string
 					end
 				end
 				
-				module Symbol
-					def self.parse(string)
+				class Symbol
+					def name
+						"ENUM"
+					end
+					
+					def parse(string)
 						string&.to_sym
 					end
 				end
 				
-				module DateTime
-					def self.parse(string)
+				class DateTime
+					def initialize(name = "DATETIME")
+						@name = name
+					end
+					
+					attr :name
+					
+					def parse(string)
 						if string
 							parts = string.split(/[\-\s:]/)
 							
@@ -76,8 +116,26 @@ module DB
 					end
 				end
 				
-				module JSON
-					def self.parse(string)
+				class Date
+					def name
+						"DATE"
+					end
+					
+					def parse(string)
+						if string
+							parts = string.split(/[\-\s:]/)
+							
+							return Time.utc(*parts)
+						end
+					end
+				end
+				
+				class JSON
+					def name
+						"JSON"
+					end
+					
+					def parse(string)
 						::JSON.parse(string, symbolize_names: true) if string
 					end
 				end

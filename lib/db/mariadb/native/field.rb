@@ -60,25 +60,35 @@ module DB
 			])
 			
 			DEFAULT_TYPES = {
-				decimal: Types::Decimal,
-				boolean: Types::Boolean,
-				tiny: Types::Integer,
-				short: Types::Integer,
-				long: Types::Integer,
-				float: Types::Float,
-				double: Types::Float,
-				timestamp: Types::DateTime,
-				longlong: Types::Integer,
-				int24: Types::Integer,
-				date: Date,
-				datetime: Types::DateTime,
-				year: Types::Integer,
-				newdate: Types::DateTime,
-				bit: Types::Integer,
-				json: Types::JSON,
-				newdecimal: Types::Decimal,
-				enum: Types::Symbol,
-				set: Types::Integer,
+				# Pseudo types:
+				primary_key: Types::Integer.new('BIGINT AUTO_INCREMENT PRIMARY KEY'),
+				foreign_key: Types::Integer.new('BIGINT'),
+				text: Types::Text.new("TEXT"),
+				string: Types::Text.new("VARCHAR(255)"),
+				
+				# Aliases
+				smallint: Types::Integer.new("SHORT"),
+				integer: Types::Integer.new("INTEGER"),
+				bigint: Types::Integer.new("LONG"),
+				
+				# Native types:
+				decimal: Types::Decimal.new,
+				boolean: Types::Boolean.new,
+				tiny: Types::Integer.new("TINY"),
+				short: Types::Integer.new("SHORT"),
+				long: Types::Integer.new("LONG"),
+				float: Types::Float.new,
+				double: Types::Float.new("DOUBLE"),
+				timestamp: Types::DateTime.new("TIMESTAMP"),
+				date: Types::Date.new,
+				datetime: Types::DateTime.new("DATETIME"),
+				year: Types::Integer.new("YEAR"),
+				newdate: Types::DateTime.new("DATETIME"),
+				bit: Types::Integer.new("BIT"),
+				json: Types::JSON.new,
+				newdecimal: Types::Decimal.new,
+				enum: Types::Symbol.new,
+				set: Types::Integer.new("SET"),
 			}
 			
 			class Field < FFI::Struct

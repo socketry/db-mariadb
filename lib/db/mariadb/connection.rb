@@ -41,6 +41,10 @@ module DB
 				super
 			end
 			
+			def types
+				@native.types
+			end
+			
 			def append_string(value, buffer = String.new)
 				buffer << "'" << @native.escape(value) << "'"
 				
