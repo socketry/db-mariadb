@@ -77,6 +77,7 @@ module DB
 				tiny: Types::Integer.new("TINY"),
 				short: Types::Integer.new("SHORT"),
 				long: Types::Integer.new("LONG"),
+				longlong: Types::Integer.new("LONGLONG"),
 				float: Types::Float.new,
 				double: Types::Float.new("DOUBLE"),
 				timestamp: Types::DateTime.new("TIMESTAMP"),
