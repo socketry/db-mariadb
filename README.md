@@ -1,6 +1,6 @@
 # DB::MariaDB
 
-A light-weight wrapper for Ruby connecting to MariaDB/MariaDB.
+A light-weight wrapper for Ruby connecting to MariaDB and MySQL servers.
 
 [![Development Status](https://github.com/socketry/db-mariadb/workflows/Development/badge.svg)](https://github.com/socketry/db-mariadb/actions?workflow=Development)
 
