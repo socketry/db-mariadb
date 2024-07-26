@@ -2,8 +2,6 @@
 
 This guide explains how to get started with the `db-mariadb` gem.
 
-This gem provides an adapter for the `db` gem. You should consult the [`db` gem documentation](https://socketry.github.io/db/) for general usage.
-
 ## Installation
 
 Add the gem to your project:

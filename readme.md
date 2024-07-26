@@ -1,6 +1,6 @@
 # DB::MariaDB
 
-A light-weight wrapper for Ruby connecting to MariaDB and MySQL servers.
+A light-weight wrapper for Ruby connecting to MariaDB and MySQL servers. This gem provides an adapter for the [`db` gem](https://github.com/socketry/db). You should use the `db` gem directly as it provides a unified interface for all database adapters and contains the majority of the documentation.
 
 [![Development Status](https://github.com/socketry/db-mariadb/workflows/Test/badge.svg)](https://github.com/socketry/db-mariadb/actions?workflow=Test)
 
