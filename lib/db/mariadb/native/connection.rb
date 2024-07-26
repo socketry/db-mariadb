@@ -52,7 +52,7 @@ module DB
 			ffi_attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
 			
 			class Connection < FFI::Pointer
-				def self.connect(wrapper: IO, host: 'localhost', username: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
+				def self.connect(host: 'localhost', username: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
