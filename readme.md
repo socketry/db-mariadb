@@ -4,37 +4,11 @@ A light-weight wrapper for Ruby connecting to MariaDB and MySQL servers.
 
 [![Development Status](https://github.com/socketry/db-mariadb/workflows/Test/badge.svg)](https://github.com/socketry/db-mariadb/actions?workflow=Test)
 
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'db-mariadb'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install db-mariadb
-
 ## Usage
 
-### Test Setup
+Please see the [project documentation](https://github.com/socketry/db-mariadb) for more details.
 
-#### Darwin/MacPorts
-
-Start the local server:
-
-    > cd '/opt/local' ; /opt/local/lib/mariadb-10.5/bin/mysqld_safe --user=_mysql --datadir='/opt/local/var/db/mariadb-10.5'
-
-Setup local test permissions:
-
-    > sudo /opt/local/lib/mariadb-10.5/bin/mysql
-    
-    > CREATE USER 'test'@'localhost' IDENTIFIED BY 'test';
-    > GRANT ALL PRIVILEGES ON *.* TO 'test'@'localhost';
-    > FLUSH PRIVILEGES;
+  - [Getting Started](https://github.com/socketry/db-mariadbguides/getting-started/index) - This guide explains how to get started with the `db-mariadb` gem.
 
 ## Contributing
 
