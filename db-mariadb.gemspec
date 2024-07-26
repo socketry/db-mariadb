@@ -16,6 +16,8 @@ Gem::Specification.new do |spec|
 	spec.homepage = "https://github.com/socketry/db-mariadb"
 	
 	spec.metadata = {
+		"documentation_uri" => "https://socketry.github.io/db-mariadb/",
+		"funding_uri" => "https://github.com/sponsors/ioquatix",
 		"source_code_uri" => "https://github.com/socketry/db-mariadb.git",
 	}
 	

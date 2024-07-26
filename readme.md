@@ -6,9 +6,9 @@ A light-weight wrapper for Ruby connecting to MariaDB and MySQL servers. This ge
 
 ## Usage
 
-Please see the [project documentation](https://github.com/socketry/db-mariadb) for more details.
+Please see the [project documentation](https://socketry.github.io/db-mariadb/) for more details.
 
-  - [Getting Started](https://github.com/socketry/db-mariadbguides/getting-started/index) - This guide explains how to get started with the `db-mariadb` gem.
+  - [Getting Started](https://socketry.github.io/db-mariadb/guides/getting-started/index) - This guide explains how to get started with the `db-mariadb` gem.
 
 ## Contributing
 
