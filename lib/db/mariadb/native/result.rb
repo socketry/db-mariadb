@@ -50,6 +50,7 @@ module DB
 					fields.map{|field| @types[field.type]}
 				end
 				
+				# In the context of unbuffered queries, this is the number of rows that have been fetched so far.
 				def row_count
 					Native.mysql_num_rows(self)
 				end
