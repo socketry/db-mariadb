@@ -10,6 +10,10 @@ Please see the [project documentation](https://socketry.github.io/db-mariadb/) f
 
   - [Getting Started](https://socketry.github.io/db-mariadb/guides/getting-started/index) - This guide explains how to get started with the `db-mariadb` gem.
 
+## Releases
+
+There are no documented releases.
+
 ## Contributing
 
 We welcome contributions to this project.
