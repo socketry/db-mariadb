@@ -1,0 +1,12 @@
+# Automatically generated context index for Utopia::Project guides.
+# Do not edit then files in this directory directly, instead edit the guides and then run `bake utopia:project:agent:context:update`.
+---
+description: An event-driven interface for MariaDB and MySQL servers.
+metadata:
+  documentation_uri: https://socketry.github.io/db-mariadb/
+  funding_uri: https://github.com/sponsors/ioquatix
+  source_code_uri: https://github.com/socketry/db-mariadb.git
+files:
+- path: getting-started.md
+  title: Getting Started
+  description: This guide explains how to get started with the `db-mariadb` gem.
