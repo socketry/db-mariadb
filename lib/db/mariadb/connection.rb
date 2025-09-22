@@ -4,6 +4,7 @@
 # Copyright, 2020-2024, by Samuel Williams.
 
 require 'async/pool/resource'
+require 'db/features'
 
 require_relative 'native/connection'
 
@@ -99,6 +100,18 @@ module DB
 			
 			def next_result
 				@native.next_result
+			end
+			
+			FEATURES = DB::Features.new(
+				modify_column: true,
+				conditional_operations: true,
+				batch_alter_table: true,
+				auto_increment: true
+			)
+			
+			# Database feature detection for migration and query building.
+			def features
+				FEATURES
 			end
 			
 			protected
