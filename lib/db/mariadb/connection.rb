@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require 'async/pool/resource'
-require 'db/features'
+require "async/pool/resource"
+require "db/features"
 
-require_relative 'native/connection'
+require_relative "native/connection"
 
 module DB
 	module MariaDB
@@ -37,17 +37,17 @@ module DB
 			def append_literal(value, buffer = String.new)
 				case value
 				when Time, DateTime
-					append_string(value.utc.strftime('%Y-%m-%d %H:%M:%S'), buffer)
+					append_string(value.utc.strftime("%Y-%m-%d %H:%M:%S"), buffer)
 				when Date
-					append_string(value.strftime('%Y-%m-%d'), buffer)
+					append_string(value.strftime("%Y-%m-%d"), buffer)
 				when Numeric
 					buffer << value.to_s
 				when TrueClass
-					buffer << 'TRUE'
+					buffer << "TRUE"
 				when FalseClass
-					buffer << 'FALSE'
+					buffer << "FALSE"
 				when nil
-					buffer << 'NULL'
+					buffer << "NULL"
 				else
 					append_string(value, buffer)
 				end
@@ -60,7 +60,7 @@ module DB
 				when Array
 					first = true
 					value.each do |part|
-						buffer << '.' unless first
+						buffer << "." unless first
 						first = false
 						
 						buffer << escape_identifier(part)
@@ -72,7 +72,7 @@ module DB
 				return buffer
 			end
 			
-			def key_column(name = 'id', primary: true, null: false)
+			def key_column(name = "id", primary: true, null: false)
 				buffer = String.new
 				
 				append_identifier(name, buffer)

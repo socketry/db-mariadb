@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2024, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require_relative 'field'
+require_relative "field"
 
 module DB
 	module MariaDB

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2024, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require 'ffi/module'
-require 'ffi/module/config_tool'
+require "ffi/module"
+require "ffi/module/config_tool"
 
 module DB
 	module MariaDB
@@ -13,7 +13,7 @@ module DB
 			extend FFI::Module::Loader
 			extend FFI::Module::ConfigTool
 			
-			ffi_load('mariadb') ||
+			ffi_load("mariadb") ||
 				ffi_load_using_config_tool(%w{mariadb_config --libs}) ||
 				ffi_load_using_config_tool(%w{mysql_config --libs}) ||
 				ffi_load_failure(<<~EOF)

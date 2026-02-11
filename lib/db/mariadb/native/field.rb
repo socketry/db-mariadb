@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2024, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require_relative '../native'
+require_relative "../native"
 
-require_relative 'types'
+require_relative "types"
 
-require 'date'
-require 'json'
+require "date"
+require "json"
 
 module DB
 	module MariaDB
@@ -46,8 +46,8 @@ module DB
 			
 			DEFAULT_TYPES = {
 				# Pseudo types:
-				primary_key: Types::Integer.new('BIGINT AUTO_INCREMENT PRIMARY KEY'),
-				foreign_key: Types::Integer.new('BIGINT'),
+				primary_key: Types::Integer.new("BIGINT AUTO_INCREMENT PRIMARY KEY"),
+				foreign_key: Types::Integer.new("BIGINT"),
 				text: Types::Text.new("TEXT"),
 				string: Types::Text.new("VARCHAR(255)"),
 				

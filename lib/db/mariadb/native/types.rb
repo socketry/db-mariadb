@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2024, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require 'json'
-require 'bigdecimal'
+require "json"
+require "bigdecimal"
 
 module DB
 	module MariaDB
@@ -41,9 +41,9 @@ module DB
 					
 					def parse(string)
 						case string
-						when '0'
+						when "0"
 							false
-						when '1'
+						when "1"
 							true
 						when nil
 							nil

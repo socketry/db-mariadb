@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2025, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require 'db/mariadb/connection'
-require 'sus/fixtures/async'
+require "db/mariadb/connection"
+require "sus/fixtures/async"
 
 describe DB::MariaDB::Connection do
 	include Sus::Fixtures::Async::ReactorContext
@@ -44,14 +44,14 @@ describe DB::MariaDB::Connection do
 		expect(row.first).to be_within(1).of(Time.now.utc)
 	end
 	
-	with '#append_string' do
+	with "#append_string" do
 		it "should escape string" do
 			expect(connection.append_string("Hello 'World'")).to be == "'Hello \\'World\\''"
 			expect(connection.append_string('Hello "World"')).to be == "'Hello \\\"World\\\"'"
 		end
 	end
 	
-	with '#append_literal' do
+	with "#append_literal" do
 		it "should escape string" do
 			expect(connection.append_literal("Hello World")).to be == "'Hello World'"
 		end
@@ -61,7 +61,7 @@ describe DB::MariaDB::Connection do
 		end
 	end
 	
-	with '#append_identifier' do
+	with "#append_identifier" do
 		it "should escape identifier" do
 			expect(connection.append_identifier("Hello World")).to be == "`Hello World`"
 		end
@@ -80,7 +80,7 @@ describe DB::MariaDB::Connection do
 		end
 	end
 	
-	with '#features' do
+	with "#features" do
 		it "should return configured MariaDB features" do
 			features = connection.features
 			

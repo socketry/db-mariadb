@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2020-2024, by Samuel Williams.
+# Copyright, 2020-2026, by Samuel Williams.
 
-require_relative 'result'
-require_relative '../error'
+require_relative "result"
+require_relative "../error"
 
 module DB
 	module MariaDB
@@ -52,7 +52,7 @@ module DB
 			ffi_attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
 			
 			class Connection < FFI::Pointer
-				def self.connect(host: 'localhost', username: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
+				def self.connect(host: "localhost", username: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
 					
