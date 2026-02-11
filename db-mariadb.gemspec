@@ -28,5 +28,5 @@ Gem::Specification.new do |spec|
 	spec.add_dependency "async-pool"
 	spec.add_dependency "bigdecimal"
 	spec.add_dependency "db", "~> 0.14"
-	spec.add_dependency "ffi-module", "~> 0.3.0"
+	spec.add_dependency "ffi-native", "~> 0.4.0"
 end

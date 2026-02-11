@@ -3,15 +3,15 @@
 # Released under the MIT License.
 # Copyright, 2020-2026, by Samuel Williams.
 
-require "ffi/module"
-require "ffi/module/config_tool"
+require "ffi/native"
+require "ffi/native/config_tool"
 
 module DB
 	module MariaDB
 		module Native
-			extend FFI::Module::Library
-			extend FFI::Module::Loader
-			extend FFI::Module::ConfigTool
+			extend FFI::Native::Library
+			extend FFI::Native::Loader
+			extend FFI::Native::ConfigTool
 			
 			ffi_load("mariadb") ||
 				ffi_load_using_config_tool(%w{mariadb_config --libs}) ||
