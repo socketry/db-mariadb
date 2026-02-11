@@ -8,6 +8,7 @@ require "ffi/native/config_tool"
 
 module DB
 	module MariaDB
+		# Provides FFI bindings to the native MariaDB/MySQL client library.
 		module Native
 			extend FFI::Native::Library
 			extend FFI::Native::Loader

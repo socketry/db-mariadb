@@ -51,7 +51,21 @@ module DB
 			
 			ffi_attach_function :mysql_real_escape_string, [:pointer, :pointer, :string, :size_t], :size_t
 			
+			# A native FFI connection to the MariaDB/MySQL client library.
 			class Connection < FFI::Pointer
+				# Establish a connection to the MariaDB/MySQL server.
+				# @parameter host [String] The hostname or IP address to connect to.
+				# @parameter username [String | Nil] The username for authentication.
+				# @parameter password [String | Nil] The password for authentication.
+				# @parameter database [String | Nil] The database name to connect to.
+				# @parameter port [Integer] The port number to connect to.
+				# @parameter unix_socket [String | Nil] The Unix socket path for local connections.
+				# @parameter client_flags [Integer] Client connection flags.
+				# @parameter compression [Boolean] Whether to enable connection compression.
+				# @parameter types [Hash] Type mapping configuration.
+				# @parameter options [Hash] Additional connection options.
+				# @returns [Connection] A new connected instance.
+				# @raises [Error] If the connection fails.
 				def self.connect(host: "localhost", username: nil, password: nil, database: nil, port: 0, unix_socket: nil, client_flags: 0, compression: false, types: DEFAULT_TYPES, **options)
 					pointer = Native.mysql_init(nil)
 					Native.mysql_options(pointer, MYSQL_OPT_NONBLOCK, nil)
@@ -93,6 +107,11 @@ module DB
 					return self.new(pointer, io, types, **options)
 				end
 				
+				# Initialize a native connection wrapper.
+				# @parameter address [FFI::Pointer] The pointer to the native connection.
+				# @parameter io [IO] The IO object for the socket.
+				# @parameter types [Hash] Type mapping configuration.
+				# @parameter options [Hash] Additional options.
 				def initialize(address, io, types, **options)
 					super(address)
 					
@@ -102,8 +121,11 @@ module DB
 					@types = types
 				end
 				
+				# @attribute [Hash] The type mapping configuration.
 				attr :types
 				
+				# Wait for the specified IO condition.
+				# @parameter status [Integer] The status flags indicating which IO condition to wait for.
 				def wait_for(status)
 					if status & MYSQL_WAIT_READ
 						@io.wait_readable
@@ -112,16 +134,22 @@ module DB
 					end
 				end
 				
+				# Check for errors and raise an exception if one occurred.
+				# @parameter message [String] The error message prefix.
+				# @raises [Error] If an error occurred.
 				def check_error!(message)
 					if Native.mysql_errno(self) != 0
 						raise Error, "#{message}: #{Native.mysql_error(self)}!"
 					end
 				end
 				
+				# Get the current connection status.
+				# @returns [String] The status string from the server.
 				def status
 					Native.mysql_stat(self)
 				end
 				
+				# Free the current result set.
 				def free_result
 					if @result
 						Native.mysql_free_result(@result)
@@ -130,6 +158,7 @@ module DB
 					end
 				end
 				
+				# Close the connection and release all resources.
 				def close
 					self.free_result
 					
@@ -138,6 +167,9 @@ module DB
 					@io.close
 				end
 				
+				# Escape a string value for safe inclusion in SQL queries.
+				# @parameter value [String] The value to escape.
+				# @returns [String] The escaped string.
 				def escape(value)
 					value = value.to_s
 					
@@ -149,6 +181,9 @@ module DB
 					return out.read_string
 				end
 				
+				# Send a query to the server for execution.
+				# @parameter statement [String] The SQL statement to execute.
+				# @raises [Error] If the query fails.
 				def send_query(statement)
 					self.free_result
 					
@@ -167,18 +202,23 @@ module DB
 					end
 				end
 				
-				# @returns [Boolean] If there are more results.
+				# Check if there are more result sets available.
+				# @returns [Boolean] True if there are more results.
 				def more_results?
 					Native.mysql_more_results(self) == 1
 				end
 				
+				# Get the next result set from a multi-result query.
+				# @parameter types [Hash] Type mapping to use for this result.
+				# @returns [Result | Nil] The next result set, or `nil` if no more results.
 				def next_result(types: @types)
 					if result = self.get_result
 						return Result.new(self, types, result)
 					end
 				end
 				
-				# Silently discard any results that application didn't read.
+				# Silently discard any results that the application did not read.
+				# @returns [Nil]
 				def discard_results
 					while result = self.get_result
 					end
@@ -186,14 +226,20 @@ module DB
 					return nil
 				end
 				
+				# Get the number of rows affected by the last query.
+				# @returns [Integer] The number of affected rows.
 				def affected_rows
 					Native.mysql_affected_rows(self)
 				end
 				
+				# Get the last auto-generated ID from an INSERT query.
+				# @returns [Integer] The last insert ID.
 				def insert_id
 					Native.mysql_insert_id(self)
 				end
 				
+				# Get information about the last query execution.
+				# @returns [String | Nil] Information string about the query.
 				def info
 					Native.mysql_info(self)
 				end

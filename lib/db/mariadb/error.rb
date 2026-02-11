@@ -5,6 +5,7 @@
 
 module DB
 	module MariaDB
+		# An error raised by the MariaDB adapter.
 		class Error < StandardError
 		end
 	end

@@ -77,6 +77,7 @@ module DB
 				set: Types::Integer.new("SET"),
 			}
 			
+			# A field (column) in a result set with metadata and type information.
 			class Field < FFI::Struct
 				layout(
 					:name, :string,
@@ -102,14 +103,20 @@ module DB
 					:extension, :pointer,
 				)
 				
+				# Check if this field represents a boolean type.
+				# @returns [Boolean] True if the field is a boolean.
 				def boolean?
 					self[:length] == 1 && (self[:type] == :tiny || self[:type] == :long)
 				end
 				
+				# Get the field name.
+				# @returns [String] The field name.
 				def name
 					self[:name]
 				end
 				
+				# Get the field type, with boolean detection.
+				# @returns [Symbol] The field type.
 				def type
 					if boolean?
 						:boolean
@@ -118,6 +125,8 @@ module DB
 					end
 				end
 				
+				# Generate a string representation of the field.
+				# @returns [String] A human-readable representation.
 				def inspect
 					"\#<#{self.class} name=#{self.name} type=#{self.type} length=#{self[:length]}>"
 				end
